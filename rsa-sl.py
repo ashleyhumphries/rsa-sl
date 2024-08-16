@@ -97,10 +97,10 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     #SL_RDM1 = get_searchlight_RDMs(data_2d, centers, neighbors, events_array, method='euclidean') #eucliudean approach to calculating SLs
     SL_RDM1 = get_searchlight_RDMs(data_2d_scene, centers, neighbors, scene_events_array, method='correlation') #might want to be euclidean
 
-#3a: Creating model RDMS (null RDMs and distribution created in other script)
+#3: Creating model RDMS (null RDMs and distribution created in other script)
 
 #pulling stimuli and mapping the labels
-#FACES
+#3a: FACES
     S1= faces['stimuli type']
     neg_mapping = {'Angry': 1,'Surprise': 1, 'Happy': 0}
     pos_mapping = {'Angry': 0,'Surprise': 1, 'Happy': 1}
@@ -111,11 +111,13 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     encoded_labels = [pos_mapping[label] for label in S1]
     pos_array =np.array(encoded_labels)
 
+    check_RDM_len(neg_array, expected_len)
+    check_RDM_len(pos_array, expected_len)
 
     neg_f_vb_rdm = pairwise_distances(neg_array[:, np.newaxis], metric='manhattan')
     pos_f_vb_rdm = pairwise_distances(pos_array[:, np.newaxis], metric='manhattan')
-
-#SCENES
+    
+#3b: SCENES
     S1= scenes['stimuli type']
     neg_mapping = {'AMBIG': 1,'POS':0,'NEG':1}
     pos_mapping = {'AMBIG': 1,'POS':1,'NEG':0}
@@ -137,3 +139,50 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     possce_vb_model = ModelFixed('Pos VB RDM', upper_tri(pos_s_vb_rdm))
 
     print(f"Finished processing run {run_num}\n")
+
+#4: evaluating the models 
+
+#4a: FACES
+
+    models = [pos_vb_model, neg_vb_model] # shuff_vb_model
+
+# Evaluate the models using evaluate_models_searchlight
+    eval_results = evaluate_models_searchlight(SL_RDM, models, eval_fixed, method='spearman', n_jobs=16)
+
+# Unpack the evaluation scores
+    eval_scores = [[float(e.evaluations[0, i, 0]) for e in eval_results] for i in range(len(models))]
+#saving the correlations for each voxel SL for later
+    pos_face_corrs = eval_scores[0]
+    neg_face_corrs = eval_scores[1]
+
+    average_scores = [np.mean(scores) for scores in eval_scores]
+#average_noise_ceiling = np.mean(noise_ceilings)
+
+# Determine the best model
+    best_model_index = np.argmax(average_scores)
+    best_model = models[best_model_index]
+
+    print(f"The best performing model for faces {run_num} is: Model {best_model_index + 1}")
+#4b: SCENES
+    models = [possce_vb_model, negsce_vb_model]
+
+# Evaluate the models using evaluate_models_searchlight
+    eval_results = evaluate_models_searchlight(SL_RDM1, models, eval_fixed, method='spearman', n_jobs=16)
+
+# Unpack the evaluation scores and noise ceilings
+    eval_scores = [[float(e.evaluations[0, i, 0]) for e in eval_results] for i in range(len(models))]
+
+ #saving the correlations for each voxel SL for later
+    pos_scene_corrs = eval_scores[0]
+    neg_scene_corrs = eval_scores[1]
+
+    average_scores = [np.mean(scores) for scores in eval_scores]
+
+# Determine the best model
+    best_model_index = np.argmax(average_scores)
+    best_model = models[best_model_index]
+
+
+    print(f"The best performing model for scenes {run_num} is: Model {best_model_index + 1}")
+
+
