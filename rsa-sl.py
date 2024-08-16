@@ -97,7 +97,43 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     #SL_RDM1 = get_searchlight_RDMs(data_2d, centers, neighbors, events_array, method='euclidean') #eucliudean approach to calculating SLs
     SL_RDM1 = get_searchlight_RDMs(data_2d_scene, centers, neighbors, scene_events_array, method='correlation') #might want to be euclidean
 
-#3a: creating model RDMS
+#3a: Creating model RDMS (null RDMs and distribution created in other script)
 
+#pulling stimuli and mapping the labels
+#FACES
+    S1= faces['stimuli type']
+    neg_mapping = {'Angry': 1,'Surprise': 1, 'Happy': 0}
+    pos_mapping = {'Angry': 0,'Surprise': 1, 'Happy': 1}
+
+#use list comprehension to encode the labels and make RDMs
+    encoded_labels = [neg_mapping[label] for label in S1]
+    neg_array =np.array(encoded_labels)
+    encoded_labels = [pos_mapping[label] for label in S1]
+    pos_array =np.array(encoded_labels)
+
+
+    neg_f_vb_rdm = pairwise_distances(neg_array[:, np.newaxis], metric='manhattan')
+    pos_f_vb_rdm = pairwise_distances(pos_array[:, np.newaxis], metric='manhattan')
+
+#SCENES
+    S1= scenes['stimuli type']
+    neg_mapping = {'AMBIG': 1,'POS':0,'NEG':1}
+    pos_mapping = {'AMBIG': 1,'POS':1,'NEG':0}
+
+#use list comprehension to encode the labels and make RDMs
+    encoded_labels = [neg_mapping[label] for label in S1]
+    neg_array =np.array(encoded_labels)
+    encoded_labels = [pos_mapping[label] for label in S1]
+    pos_array =np.array(encoded_labels)
+
+
+    neg_s_vb_rdm = pairwise_distances(neg_array[:, np.newaxis], metric='manhattan')
+    pos_s_vb_rdm = pairwise_distances(pos_array[:, np.newaxis], metric='manhattan')
+#making the face /scenesmodels 
+    neg_vb_model = ModelFixed('Neg VB RDM', upper_tri(neg_f_vb_rdm))
+    pos_vb_model = ModelFixed('Pos VB RDM', upper_tri(pos_f_vb_rdm))
+
+    negsce_vb_model = ModelFixed('Neg VB RDM', upper_tri(neg_s_vb_rdm))
+    possce_vb_model = ModelFixed('Pos VB RDM', upper_tri(pos_s_vb_rdm))
 
     print(f"Finished processing run {run_num}\n")
