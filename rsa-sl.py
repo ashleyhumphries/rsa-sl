@@ -1,3 +1,47 @@
+import warnings
+import sys 
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
+
+# Standard libraries
+import os.path as op
+import re
+
+# Scientific computing libraries
+import numpy as np
+import pandas as pd
+
+# Neuroimaging libraries
+import nibabel as nib
+from nilearn import image
+
+# Machine learning libraries
+from sklearn.metrics import pairwise_distances
+
+# Visualization libraries
+import seaborn as sns 
+
+# File handling
+from glob import glob
+
+# RSA toolbox libraries
+from rsatoolbox.inference import eval_fixed
+from rsatoolbox.model import ModelFixed
+import rsatoolbox as rsatoolbox
+from rsatoolbox.util.searchlight import get_volume_searchlight, get_searchlight_RDMs, evaluate_models_searchlight
+
+# Set printing precision
+np.set_printoptions(precision=2, suppress=True)
+
+# Matplotlib and Seaborn settings
+%matplotlib inline 
+#%matplotlib notebook
+#%autosave 5
+sns.set(style='white', context='poster', rc={"lines.linewidth": 2.5})
+sns.set(palette="colorblind")
+
+
+
 sub = 'sub-10'
 derivatives_dir = op.join(f'/work/cb3/ahumphries/derivatives/{sub}')
 func_dir = op.join(derivatives_dir, "ses-1/func/")
@@ -138,7 +182,7 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     negsce_vb_model = ModelFixed('Neg VB RDM', upper_tri(neg_s_vb_rdm))
     possce_vb_model = ModelFixed('Pos VB RDM', upper_tri(pos_s_vb_rdm))
 
-    print(f"Finished processing run {run_num}\n")
+  
 
 #4: evaluating the models 
 
@@ -185,4 +229,40 @@ for run_num, bold_file in enumerate(bold_files, start=1):
 
     print(f"The best performing model for scenes {run_num} is: Model {best_model_index + 1}")
 
+#5 Plotting SL Maps
+    x, y, z = mask.shape
 
+#5a: Create RDM brain maps by reshaping the 3d arrays
+    #POS
+    pos_corrs_f = np.zeros([x*y*z])
+    pos_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = pos_face_corrs
+    pos_corrs_f= pos_corrs_f.reshape([x,y,z])
+
+    pos_corrs_s = np.zeros([x*y*z])
+    pos_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = pos_scene_corrs
+    pos_corrs_s = pos_corrs_s.reshape([x,y,z])
+    #NEG
+    neg_corrs_f = np.zeros([x*y*z])
+    neg_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = neg_face_corrs
+    neg_corrs_f = neg_corrs_f.reshape([x,y,z])
+
+    neg_corrs_s = np.zeros([x*y*z])
+    neg_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = neg_scene_corrs
+    neg_corrs_s = neg_corrs_s.reshape([x,y,z])
+
+
+    # Create a Nifti image from the correlation array using the bold affine
+    pos_face_corrs_brain_img = nib.Nifti1Image(pos_corrs_f, affine=bold_img.affine, header=bold_img.header)
+    neg_face_corrs_brain_img = nib.Nifti1Image(neg_corrs_f, affine=bold_img.affine, header=bold_img.header)
+
+    pos_scene_corrs_brain_img = nib.Nifti1Image(pos_corrs_s, affine=bold_img.affine, header=bold_img.header)
+    neg_scene_corrs_brain_img = nib.Nifti1Image(neg_corrs_s, affine=bold_img.affine, header=bold_img.header)
+
+    # Save the NIfTI images to a file.
+    #nib.save(pos_face_corrs_brain_img, 'POSf_map_{run_num}-{sub}.nii.gz')
+    #nib.save(neg_face_corrs_brain_img, 'NEGf_map_{run_num}-{sub}nii.gz')
+
+    #nib.save(pos_scene_corrs_brain_img, 'POSs_map_{run_num}-{sub}.nii.gz')
+    #nib.save(neg_scene_corrs_brain_img, 'NEGs_map_{run_num}-{sub}nii.gz')
+
+    print(f"Finished processing run {run_num}\n")

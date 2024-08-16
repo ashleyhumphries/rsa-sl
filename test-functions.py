@@ -28,3 +28,14 @@ def check_data_reordering(bold_data_reordered, expected_shape):
     """
     assert bold_data_reordered.shape == expected_reordered_shape, f"Unexpected mask shape: {bold_data_reordered.shape}. Expected shape: {expected_reordered_shape}"
     print(f"Bold data reordered shape: {bold_data_reordered.shape} - OK")
+
+
+
+expected_RDM_len= (24)
+def check_RDM_len(RDM_array, expected_len):
+    """
+    Check if the length of the 1D RDM array matches the expected length.
+    """
+    assert len(RDM_array) == expected_RDM_len, f"Unexpected length: {len(RDM_array)}. Expected length: {expected_len}"
+    print(f"Length of RDM array: {len(RDM_array)} - OK")
+
