@@ -1,8 +1,7 @@
-import warnings
-import sys 
-if not sys.warnoptions:
-    warnings.simplefilter("ignore")
 
+#import other scripts
+from functions import upper_tri
+from test_functions import check_bold_data_shape, check_mask_shape, check_data_reordering, check_RDM_len
 # Standard libraries
 import os.path as op
 import re
@@ -33,12 +32,7 @@ from rsatoolbox.util.searchlight import get_volume_searchlight, get_searchlight_
 # Set printing precision
 np.set_printoptions(precision=2, suppress=True)
 
-# Matplotlib and Seaborn settings
-%matplotlib inline 
-#%matplotlib notebook
-#%autosave 5
-sns.set(style='white', context='poster', rc={"lines.linewidth": 2.5})
-sns.set(palette="colorblind")
+
 
 
 
@@ -266,3 +260,11 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     #nib.save(neg_scene_corrs_brain_img, 'NEGs_map_{run_num}-{sub}nii.gz')
 
     print(f"Finished processing run {run_num}\n")
+
+
+print(f"Finished running {sub}\n")
+
+
+if __name__ == "__main__":
+    
+    pass
