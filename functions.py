@@ -2,7 +2,7 @@
 #imports for functions 
 
 import matplotlib.colors
-
+import numpy as np
 
 
 def upper_tri(RDM):

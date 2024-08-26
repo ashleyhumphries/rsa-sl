@@ -123,7 +123,7 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     data_2d_face = np.nan_to_num(data_2d_face)
     #scenes
     data_2d_scene= bold_scene_data_reordered.reshape([bold_scene_data_reordered.shape[0], -1])
-    data_2d_scene = np.nan_to_num(bold_scene_data_reordered)
+    data_2d_scene = np.nan_to_num(data_2d_scene)
 
 
 
@@ -202,7 +202,8 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     best_model_index = np.argmax(average_scores)
     best_model = models[best_model_index]
 
-    print(f"The best performing model for faces {run_num} is: Model {best_model_index + 1}")
+    print(f"The best performing model for faces run {run_num} is: Model {best_model_index + 1}")
+    print(f"Average scores:", average_scores)
 #4b: SCENES
     models = [possce_vb_model, negsce_vb_model]
 
@@ -223,39 +224,39 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     best_model = models[best_model_index]
 
 
-    print(f"The best performing model for scenes {run_num} is: Model {best_model_index + 1}")
+    print(f"The best performing model for scenes run {run_num} is: Model {best_model_index + 1}")
+    print(f"Average scores:", average_scores)
+# #5 Plotting SL Maps
+#     x, y, z = mask.shape
 
-#5 Plotting SL Maps
-    x, y, z = mask.shape
+# #5a: Create RDM brain maps by reshaping the 3d arrays
+#     #POS
+#     pos_corrs_f = np.zeros([x*y*z])
+#     pos_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = pos_face_corrs
+#     pos_corrs_f= pos_corrs_f.reshape([x,y,z])
 
-#5a: Create RDM brain maps by reshaping the 3d arrays
-    #POS
-    pos_corrs_f = np.zeros([x*y*z])
-    pos_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = pos_face_corrs
-    pos_corrs_f= pos_corrs_f.reshape([x,y,z])
+#     pos_corrs_s = np.zeros([x*y*z])
+#     pos_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = pos_scene_corrs
+#     pos_corrs_s = pos_corrs_s.reshape([x,y,z])
+#     #NEG
+#     neg_corrs_f = np.zeros([x*y*z])
+#     neg_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = neg_face_corrs
+#     neg_corrs_f = neg_corrs_f.reshape([x,y,z])
 
-    pos_corrs_s = np.zeros([x*y*z])
-    pos_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = pos_scene_corrs
-    pos_corrs_s = pos_corrs_s.reshape([x,y,z])
-    #NEG
-    neg_corrs_f = np.zeros([x*y*z])
-    neg_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = neg_face_corrs
-    neg_corrs_f = neg_corrs_f.reshape([x,y,z])
-
-    neg_corrs_s = np.zeros([x*y*z])
-    neg_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = neg_scene_corrs
-    neg_corrs_s = neg_corrs_s.reshape([x,y,z])
+#     neg_corrs_s = np.zeros([x*y*z])
+#     neg_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = neg_scene_corrs
+#     neg_corrs_s = neg_corrs_s.reshape([x,y,z])
 
 
-    # Create a Nifti image from the correlation array using the bold affine
-    pos_face_corrs_brain_img = nib.Nifti1Image(pos_corrs_f, affine=bold_img.affine, header=bold_img.header)
-    neg_face_corrs_brain_img = nib.Nifti1Image(neg_corrs_f, affine=bold_img.affine, header=bold_img.header)
+#     # Create a Nifti image from the correlation array using the bold affine
+#     pos_face_corrs_brain_img = nib.Nifti1Image(pos_corrs_f, affine=bold_img.affine, header=bold_img.header)
+#     neg_face_corrs_brain_img = nib.Nifti1Image(neg_corrs_f, affine=bold_img.affine, header=bold_img.header)
 
-    pos_scene_corrs_brain_img = nib.Nifti1Image(pos_corrs_s, affine=bold_img.affine, header=bold_img.header)
-    neg_scene_corrs_brain_img = nib.Nifti1Image(neg_corrs_s, affine=bold_img.affine, header=bold_img.header)
+#     pos_scene_corrs_brain_img = nib.Nifti1Image(pos_corrs_s, affine=bold_img.affine, header=bold_img.header)
+#     neg_scene_corrs_brain_img = nib.Nifti1Image(neg_corrs_s, affine=bold_img.affine, header=bold_img.header)
 
-    # Save the NIfTI images to a file.
-    #nib.save(pos_face_corrs_brain_img, 'POSf_map_{run_num}-{sub}.nii.gz')
+#     # Save the NIfTI images to a file.
+#     #nib.save(pos_face_corrs_brain_img, 'POSf_map_{run_num}-{sub}.nii.gz')
     #nib.save(neg_face_corrs_brain_img, 'NEGf_map_{run_num}-{sub}nii.gz')
 
     #nib.save(pos_scene_corrs_brain_img, 'POSs_map_{run_num}-{sub}.nii.gz')
