@@ -17,8 +17,7 @@ from nilearn import image
 # Machine learning libraries
 from sklearn.metrics import pairwise_distances
 
-# Visualization libraries
-import seaborn as sns 
+
 
 # File handling
 from glob import glob
@@ -41,7 +40,7 @@ derivatives_dir = op.join(f'/work/cb3/ahumphries/derivatives/{sub}')
 func_dir = op.join(derivatives_dir, "ses-1/func/")
 bold_files = sorted(glob(op.join(func_dir, '*_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz')))
 
-
+bids_dir= op.join(f'/work/cb3/ahumphries/all-subs-bids v2/{sub}')
 events_dir = op.join(bids_dir + "/ses-1/func/")
 event_files = sorted(glob(events_dir + f'*_events.tsv'))
 
@@ -69,8 +68,10 @@ for run_num, bold_file in enumerate(bold_files, start=1):
 
 
      # Check BOLD data shape
+    expected_bold_shape = (65, 77, 56, 180)
     check_bold_data_shape(bold_data, expected_bold_shape)
     # Check binary mask shape
+    expected_mask_shape = (65, 77, 56)
     check_mask_shape(binary_mask_data, expected_mask_shape)
 
    
@@ -113,6 +114,7 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     bold_face_data_reordered = np.moveaxis(bold_face_data, -1, 0)
     bold_scene_data_reordered = np.moveaxis(bold_scene_data, -1, 0)
 #checks for reordering
+    expected_reordered_shape = (24, 65, 77, 56)
     check_data_reordering(bold_face_data_reordered, expected_reordered_shape)
     check_data_reordering(bold_scene_data_reordered, expected_reordered_shape)
 
@@ -148,9 +150,9 @@ for run_num, bold_file in enumerate(bold_files, start=1):
     neg_array =np.array(encoded_labels)
     encoded_labels = [pos_mapping[label] for label in S1]
     pos_array =np.array(encoded_labels)
-
-    check_RDM_len(neg_array, expected_len)
-    check_RDM_len(pos_array, expected_len)
+    expected_RDM_len= (24)
+    check_RDM_len(neg_array, expected_RDM_len)
+    check_RDM_len(pos_array, expected_RDM_len)
 
     neg_f_vb_rdm = pairwise_distances(neg_array[:, np.newaxis], metric='manhattan')
     pos_f_vb_rdm = pairwise_distances(pos_array[:, np.newaxis], metric='manhattan')

@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
 #SBATCH --time=1:00:00
@@ -9,9 +9,14 @@
 #SBATCH --output=/work/cb3/ahumphries/RSA-SL/output/job.rsa-sl.%J.out
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=ahumphries2@unl.edu
+#SBATCH --licenses=common
 
-module load python/3.8
+
 cd $WORK/RSA-SL
+
+# Load Conda module and activate environment
+module load anaconda
+conda activate /common/cb3/ahumphries/rsaenv
 
 
 # Run the main analysis script
