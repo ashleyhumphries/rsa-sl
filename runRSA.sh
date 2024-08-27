@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=4
-#SBATCH --time=1:00:00
-#SBATCH --mem-per-cpu=1600
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=8
+#SBATCH --time=2:00:00
+#SBATCH --mem-per-cpu=16000
 #SBATCH --partition=batch,cb3
 #SBATCH --job-name=rsa-sl
 #SBATCH --error=/work/cb3/ahumphries/RSA-SL/errors/job.rsa-sl.%J.err
