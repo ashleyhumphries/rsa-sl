@@ -2,7 +2,7 @@
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=8
 #SBATCH --time=2:00:00
-#SBATCH --mem-per-cpu=16000
+#SBATCH --mem-per-cpu=2000
 #SBATCH --partition=batch,cb3
 #SBATCH --job-name=rsa-sl
 #SBATCH --error=/work/cb3/ahumphries/RSA-SL/errors/job.rsa-sl.%J.err

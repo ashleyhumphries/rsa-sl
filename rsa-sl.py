@@ -1,6 +1,6 @@
 
 #import other scripts
-from functions import upper_tri
+from functions import upper_tri, generate_null_distribution
 from test_functions import check_bold_data_shape, check_mask_shape, check_data_reordering, check_RDM_len
 # Standard libraries
 import os.path as op
@@ -229,6 +229,29 @@ for subject in sub:
 
         print(f"The best performing model for scenes run {run_num} is: Model {best_model_index + 1}")
         print(f"Average scores:", average_scores)
+
+
+
+    # Null distribution creating 
+        nperms=1000
+        face_scores, scene_scores = generate_null_distribution(SL_RDM, SL_RDM1, centers, nperms)
+
+        p_pos_faces = np.zeros(centers.shape[0])
+        for i in range(centers.shape[0]):
+            p_pos_faces[i] = np.sum(face_scores[i,:] >= pos_face_corrs[i]) / nperms
+
+        p_neg_faces = np.zeros(centers.shape[0])
+        for i in range(centers.shape[0]):
+            p_neg_faces[i] = np.sum(face_scores[i,:] >= neg_face_corrs[i]) / nperms
+
+        p_pos_scenes = np.zeros(centers.shape[0])
+        for i in range(centers.shape[0]):
+            p_pos_scenes[i] = np.sum(scene_scores[i,:] >= pos_scene_corrs[i]) / nperms
+
+        p_neg_scenes = np.zeros(centers.shape[0])
+        for i in range(centers.shape[0]):
+            p_neg_faces[i] = np.sum(scene_scores[i,:] >= neg_scene_corrs[i]) / nperms
+
     # #5 Plotting SL Maps
     #     x, y, z = mask.shape
 
