@@ -37,3 +37,20 @@ def check_RDM_len(RDM_array, expected_len):
     assert len(RDM_array) == expected_len, f"Unexpected length: {len(RDM_array)}. Expected length: {expected_len}"
     print(f"Length of RDM array: {len(RDM_array)} - OK")
 
+
+
+def test_scores_are_not_zeros(face_scores, scene_scores):
+    """
+    Test if the face_scores and scene_scores arrays are not made of zeros.
+    
+    Parameters:
+    - face_scores: np.array, array of face scores.
+    - scene_scores: np.array, array of scene scores.
+    
+    Returns:
+    - bool: True if the arrays are not made of zeros, otherwise False.
+    """
+    assert np.any(face_scores != 0), "face_scores is still filled with zeros."
+    assert np.any(scene_scores != 0), "scene_scores is still filled with zeros."
+    print("Test passed: Both face_scores and scene_scores are not filled with zeros.")
+

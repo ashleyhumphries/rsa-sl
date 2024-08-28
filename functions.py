@@ -57,8 +57,8 @@ def generate_null_distribution(SL_RDM, SL_RDM1, centers, nperms=1000):
     - scene_scores: The generated null distribution for scene scores.
     """
 
-    face_scores = np.zeros((centers.shape[0],1000))
-    scene_scores = np.zeros((centers.shape[0],1000))
+    face_scores = np.zeros((centers.shape[0],nperms))
+    scene_scores = np.zeros((centers.shape[0],nperms))
     array = np.array([1]*18 + [0]*6)
     
     for i in range(nperms):
@@ -80,4 +80,4 @@ def generate_null_distribution(SL_RDM, SL_RDM1, centers, nperms=1000):
         eval_score = [float(e.evaluations) for e in eval_results]
         scene_scores[:, i] = eval_score
 
-        return face_scores, scene_scores
+    return face_scores, scene_scores

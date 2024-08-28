@@ -1,7 +1,7 @@
 
 #import other scripts
 from functions import upper_tri, generate_null_distribution
-from test_functions import check_bold_data_shape, check_mask_shape, check_data_reordering, check_RDM_len
+from test_functions import check_bold_data_shape, check_mask_shape, check_data_reordering, check_RDM_len, test_scores_are_not_zeros
 # Standard libraries
 import os.path as op
 import re
@@ -234,8 +234,17 @@ for subject in sub:
 
     # Null distribution creating 
         nperms=1000
+
+        print("Permutation testing start.")
         face_scores, scene_scores = generate_null_distribution(SL_RDM, SL_RDM1, centers, nperms)
 
+        print(face_scores[:100,1])
+        print(scene_scores[:100,1])
+        print("Permutation  testing done.")
+        test_scores_are_not_zeros(face_scores, scene_scores)
+        # at each voxel, add up how many nulls were as or more extreme to the initial correlation
+        # divided by the number of nulls we have (nperms)
+        # anything below 0.05 is sig. 
         p_pos_faces = np.zeros(centers.shape[0])
         for i in range(centers.shape[0]):
             p_pos_faces[i] = np.sum(face_scores[i,:] >= pos_face_corrs[i]) / nperms
@@ -250,12 +259,40 @@ for subject in sub:
 
         p_neg_scenes = np.zeros(centers.shape[0])
         for i in range(centers.shape[0]):
-            p_neg_faces[i] = np.sum(scene_scores[i,:] >= neg_scene_corrs[i]) / nperms
+            p_neg_scenes[i] = np.sum(scene_scores[i,:] >= neg_scene_corrs[i]) / nperms
 
-    # #5 Plotting SL Maps
-    #     x, y, z = mask.shape
+        print(p_pos_faces[:100])
+     #5 Plotting SL Maps
+     
+        x, y, z = mask.shape
+        pos_pval_brain = np.zeros([x*y*z])
+        pos_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_faces
+        pos_pval_brain = pos_pval_brain.reshape([x,y,z])
+        pos_face_p_brain_img = nib.Nifti1Image(pos_pval_brain, affine=bold_img.affine, header=bold_img.header)
 
-    # #5a: Create RDM brain maps by reshaping the 3d arrays
+        neg_pval_brain = np.zeros([x*y*z])
+        neg_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_faces
+        neg_pval_brain = neg_pval_brain.reshape([x,y,z])
+        neg_face_p_brain_img = nib.Nifti1Image(neg_pval_brain, affine=bold_img.affine, header=bold_img.header)
+
+       
+        pos_pval_brain_s = np.zeros([x*y*z])
+        pos_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_scenes
+        pos_pval_brain_s = pos_pval_brain_s.reshape([x,y,z])
+        pos_scene_p_brain_img = nib.Nifti1Image(pos_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
+
+        neg_pval_brain_s = np.zeros([x*y*z])
+        neg_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_scenes
+        neg_pval_brain_s = neg_pval_brain_s.reshape([x,y,z])
+        neg_scene_p_brain_img = nib.Nifti1Image(neg_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
+
+
+        nib.save(pos_face_p_brain_img,f'POSf_map_p-run_{run_num}-{subject}.nii.gz')
+        nib.save(pos_face_p_brain_img, f'NEGf_map_p-run_{run_num}-{subject}.nii.gz')
+
+        nib.save(neg_scene_p_brain_img, f'POSs_map_p-run_{run_num}-{subject}.nii.gz')
+        nib.save(pos_scene_p_brain_img, f'NEGs_map_p-run_{run_num}-{subject}.nii.gz')
+     #5a: Create RDM brain maps by reshaping the 3d arrays
     #     #POS
     #     pos_corrs_f = np.zeros([x*y*z])
     #     pos_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = pos_face_corrs

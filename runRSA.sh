@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=8
-#SBATCH --time=2:00:00
+#SBATCH --time=12:00:00
 #SBATCH --mem-per-cpu=2000
 #SBATCH --partition=batch,cb3
 #SBATCH --job-name=rsa-sl
