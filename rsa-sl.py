@@ -287,12 +287,13 @@ for subject in sub:
         neg_pval_brain_s = neg_pval_brain_s.reshape([x,y,z])
         neg_scene_p_brain_img = nib.Nifti1Image(neg_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
 
+        output_dir = "maps"
 
-        nib.save(pos_face_p_brain_img,f'POSf_map_p-run_{run_num}-{subject}.nii.gz')
-        nib.save(neg_face_p_brain_img, f'NEGf_map_p-run_{run_num}-{subject}.nii.gz')
+        nib.save(pos_face_p_brain_img, op.join(output_dir,f'POSf_map_p-run_{run_num}-{subject}.nii.gz'))
+        nib.save(neg_face_p_brain_img, op.join(output_dir,f'NEGf_map_p-run_{run_num}-{subject}.nii.gz'))
 
-        nib.save(pos_scene_p_brain_img, f'POSs_map_p-run_{run_num}-{subject}.nii.gz')
-        nib.save(neg_scene_p_brain_img, f'NEGs_map_p-run_{run_num}-{subject}.nii.gz')
+        nib.save(pos_scene_p_brain_img, op.join(output_dir,f'POSs_map_p-run_{run_num}-{subject}.nii.gz'))
+        nib.save(neg_scene_p_brain_img, op.join(output_dir,f'NEGs_map_p-run_{run_num}-{subject}.nii.gz'))
      #5a: Create RDM brain maps by reshaping the 3d arrays
     #     #POS
     #     pos_corrs_f = np.zeros([x*y*z])
