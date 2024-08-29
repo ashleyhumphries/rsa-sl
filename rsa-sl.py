@@ -96,14 +96,14 @@ for subject in sub:
     # Define the list of desired stimuli types
         face_stimuli = ['Surprise', 'Happy', 'Angry']
         scene_stimuli = ['AMBIG', 'POS', 'NEG']
-    # Filter the DataFrame for faces and scenes
+    # Filter the DataFrame for face and scene
 
-        faces = event_sans_fix[event_sans_fix['stimuli type'].isin(face_stimuli)]
-        faces = faces[faces['Task'] == 'Valence']
-        scenes = event_sans_fix[event_sans_fix['stimuli type'].isin(scene_stimuli)]
-        scenes = scenes[scenes['Task'] == 'Valence']
-        face_trials = list(faces['Trial'])
-        scene_trials = list(scenes['Trial'])
+        face = event_sans_fix[event_sans_fix['stimuli type'].isin(face_stimuli)]
+        face = face[face['Task'] == 'Valence']
+        scene = event_sans_fix[event_sans_fix['stimuli type'].isin(scene_stimuli)]
+        scene = scene[scene['Task'] == 'Valence']
+        face_trials = list(face['Trial'])
+        scene_trials = list(scene['Trial'])
 
 
 
@@ -124,15 +124,15 @@ for subject in sub:
     #reshaping data from being 4D to 2D
         data_2d_face = bold_face_data_reordered.reshape([bold_face_data_reordered.shape[0], -1])
         data_2d_face = np.nan_to_num(data_2d_face)
-        #scenes
+        #scene
         data_2d_scene= bold_scene_data_reordered.reshape([bold_scene_data_reordered.shape[0], -1])
         data_2d_scene = np.nan_to_num(data_2d_scene)
 
 
 
     #for having seperate trials: 
-        face_events_array= np.array(faces['trial_type'])
-        scene_events_array= np.array(scenes['trial_type'])
+        face_events_array= np.array(face['trial_type'])
+        scene_events_array= np.array(scene['trial_type'])
 
     #2d: Iterate over all the searchlight centers and calculates the RDM
 
@@ -143,8 +143,8 @@ for subject in sub:
     #3: Creating model RDMS (null RDMs and distribution created in other script)
 
     #pulling stimuli and mapping the labels
-    #3a: FACES
-        S1= faces['stimuli type']
+    #3a: face
+        S1= face['stimuli type']
         neg_mapping = {'Angry': 1,'Surprise': 1, 'Happy': 0}
         pos_mapping = {'Angry': 0,'Surprise': 1, 'Happy': 1}
 
@@ -160,8 +160,8 @@ for subject in sub:
         neg_f_vb_rdm = pairwise_distances(neg_array[:, np.newaxis], metric='manhattan')
         pos_f_vb_rdm = pairwise_distances(pos_array[:, np.newaxis], metric='manhattan')
         
-    #3b: SCENES
-        S1= scenes['stimuli type']
+    #3b: scene
+        S1= scene['stimuli type']
         neg_mapping = {'AMBIG': 1,'POS':0,'NEG':1}
         pos_mapping = {'AMBIG': 1,'POS':1,'NEG':0}
 
@@ -174,7 +174,7 @@ for subject in sub:
 
         neg_s_vb_rdm = pairwise_distances(neg_array[:, np.newaxis], metric='manhattan')
         pos_s_vb_rdm = pairwise_distances(pos_array[:, np.newaxis], metric='manhattan')
-    #making the face /scenesmodels 
+    #making the face /scenemodels 
         neg_vb_model = ModelFixed('Neg VB RDM', upper_tri(neg_f_vb_rdm))
         pos_vb_model = ModelFixed('Pos VB RDM', upper_tri(pos_f_vb_rdm))
 
@@ -185,7 +185,7 @@ for subject in sub:
 
     #4: evaluating the models 
 
-    #4a: FACES
+    #4a: face
 
         models = [pos_vb_model, neg_vb_model] # shuff_vb_model
 
@@ -205,9 +205,9 @@ for subject in sub:
         best_model_index = np.argmax(average_scores)
         best_model = models[best_model_index]
 
-        print(f"The best performing model for faces run {run_num} is: Model {best_model_index + 1}")
+        print(f"The best performing model for face run {run_num} is: Model {best_model_index + 1}")
         print(f"Average scores:", average_scores)
-    #4b: SCENES
+    #4b: scene
         models = [possce_vb_model, negsce_vb_model]
 
     # Evaluate the models using evaluate_models_searchlight
@@ -227,7 +227,7 @@ for subject in sub:
         best_model = models[best_model_index]
 
 
-        print(f"The best performing model for scenes run {run_num} is: Model {best_model_index + 1}")
+        print(f"The best performing model for scene run {run_num} is: Model {best_model_index + 1}")
         print(f"Average scores:", average_scores)
 
 
@@ -245,53 +245,54 @@ for subject in sub:
         # at each voxel, add up how many nulls were as or more extreme to the initial correlation
         # divided by the number of nulls we have (nperms)
         # anything below 0.05 is sig. 
-        p_pos_faces = np.zeros(centers.shape[0])
+        #inverted so anything above 0.95 (95%) is sig. 
+        p_pos_face = np.zeros(centers.shape[0])
         for i in range(centers.shape[0]):
-            p_pos_faces[i] = np.sum(face_scores[i,:] >= pos_face_corrs[i]) / nperms
+            p_pos_face[i] = 1 - (np.sum(face_scores[i,:] >= pos_face_corrs[i]) / nperms)
 
-        p_neg_faces = np.zeros(centers.shape[0])
+        p_neg_face = np.zeros(centers.shape[0])
         for i in range(centers.shape[0]):
-            p_neg_faces[i] = np.sum(face_scores[i,:] >= neg_face_corrs[i]) / nperms
+            p_neg_face[i] = 1 - (np.sum(face_scores[i,:] >= neg_face_corrs[i]) / nperms)
 
-        p_pos_scenes = np.zeros(centers.shape[0])
+        p_pos_scene = np.zeros(centers.shape[0])
         for i in range(centers.shape[0]):
-            p_pos_scenes[i] = np.sum(scene_scores[i,:] >= pos_scene_corrs[i]) / nperms
+            p_pos_scene[i] = 1 - (np.sum(scene_scores[i,:] >= pos_scene_corrs[i]) / nperms)
 
-        p_neg_scenes = np.zeros(centers.shape[0])
+        p_neg_scene = np.zeros(centers.shape[0])
         for i in range(centers.shape[0]):
-            p_neg_scenes[i] = np.sum(scene_scores[i,:] >= neg_scene_corrs[i]) / nperms
+            p_neg_scene[i] = 1 - (np.sum(scene_scores[i,:] >= neg_scene_corrs[i]) / nperms)
 
-        print(p_pos_faces[:100])
+        print(p_pos_face[:100])
      #5 Plotting SL Maps
      
         x, y, z = mask.shape
         pos_pval_brain = np.zeros([x*y*z])
-        pos_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_faces
+        pos_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_face
         pos_pval_brain = pos_pval_brain.reshape([x,y,z])
         pos_face_p_brain_img = nib.Nifti1Image(pos_pval_brain, affine=bold_img.affine, header=bold_img.header)
 
         neg_pval_brain = np.zeros([x*y*z])
-        neg_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_faces
+        neg_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_face
         neg_pval_brain = neg_pval_brain.reshape([x,y,z])
         neg_face_p_brain_img = nib.Nifti1Image(neg_pval_brain, affine=bold_img.affine, header=bold_img.header)
 
        
         pos_pval_brain_s = np.zeros([x*y*z])
-        pos_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_scenes
+        pos_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_scene
         pos_pval_brain_s = pos_pval_brain_s.reshape([x,y,z])
         pos_scene_p_brain_img = nib.Nifti1Image(pos_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
 
         neg_pval_brain_s = np.zeros([x*y*z])
-        neg_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_scenes
+        neg_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_scene
         neg_pval_brain_s = neg_pval_brain_s.reshape([x,y,z])
         neg_scene_p_brain_img = nib.Nifti1Image(neg_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
 
 
         nib.save(pos_face_p_brain_img,f'POSf_map_p-run_{run_num}-{subject}.nii.gz')
-        nib.save(pos_face_p_brain_img, f'NEGf_map_p-run_{run_num}-{subject}.nii.gz')
+        nib.save(neg_face_p_brain_img, f'NEGf_map_p-run_{run_num}-{subject}.nii.gz')
 
-        nib.save(neg_scene_p_brain_img, f'POSs_map_p-run_{run_num}-{subject}.nii.gz')
-        nib.save(pos_scene_p_brain_img, f'NEGs_map_p-run_{run_num}-{subject}.nii.gz')
+        nib.save(pos_scene_p_brain_img, f'POSs_map_p-run_{run_num}-{subject}.nii.gz')
+        nib.save(neg_scene_p_brain_img, f'NEGs_map_p-run_{run_num}-{subject}.nii.gz')
      #5a: Create RDM brain maps by reshaping the 3d arrays
     #     #POS
     #     pos_corrs_f = np.zeros([x*y*z])
