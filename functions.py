@@ -81,3 +81,11 @@ def generate_null_distribution(SL_RDM, SL_RDM1, centers, nperms=1000):
         scene_scores[:, i] = eval_score
 
     return face_scores, scene_scores
+
+
+# Define a function to apply Fisher's Z-transformation
+def fisher_z_transform(corr_map):
+    # Clip the correlation values to avoid any -1 or 1 values
+    corr_map = np.clip(corr_map, -0.999999, 0.999999)
+    # Apply Fisher's Z-transformation
+    return np.arctanh(corr_map)

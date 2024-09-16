@@ -1,6 +1,6 @@
 
 #import other scripts
-from functions import upper_tri, generate_null_distribution
+from functions import upper_tri, generate_null_distribution, fisher_z_transform
 from test_functions import check_bold_data_shape, check_mask_shape, check_data_reordering, check_RDM_len, test_scores_are_not_zeros
 # Standard libraries
 import os.path as op
@@ -235,37 +235,37 @@ for subject in sub:
     # 5: Null distribution creating
     # see function in the functions.py file for more details 
     # should take around ~3 hrs / run 
-        nperms=1000
+        # nperms=1000
 
-        print("Permutation testing start.")
+        # print("Permutation testing start.")
 
-        face_scores, scene_scores = generate_null_distribution(SL_RDM, SL_RDM1, centers, nperms)
+        # face_scores, scene_scores = generate_null_distribution(SL_RDM, SL_RDM1, centers, nperms)
 
-        #print(face_scores[:100,1])
-        #print(scene_scores[:100,1])
-        print("Permutation  testing done.")
-        test_scores_are_not_zeros(face_scores, scene_scores)
+        # #print(face_scores[:100,1])
+        # #print(scene_scores[:100,1])
+        # print("Permutation  testing done.")
+        # test_scores_are_not_zeros(face_scores, scene_scores)
 
 
-        # at each voxel, add up how many nulls were as or more extreme to the initial correlation
-        # divided by the number of nulls we have (nperms)
-        # anything below 0.05 is sig. 
-        # inverted so anything above 0.95 (95%) is sig. 
-        p_pos_face = np.zeros(centers.shape[0])
-        for i in range(centers.shape[0]):
-            p_pos_face[i] = 1 - (np.sum(face_scores[i,:] >= pos_face_corrs[i]) / nperms)
+        # # at each voxel, add up how many nulls were as or more extreme to the initial correlation
+        # # divided by the number of nulls we have (nperms)
+        # # anything below 0.05 is sig. 
+        # # inverted so anything above 0.95 (95%) is sig. 
+        # p_pos_face = np.zeros(centers.shape[0])
+        # for i in range(centers.shape[0]):
+        #     p_pos_face[i] = 1 - (np.sum(face_scores[i,:] >= pos_face_corrs[i]) / nperms)
 
-        p_neg_face = np.zeros(centers.shape[0])
-        for i in range(centers.shape[0]):
-            p_neg_face[i] = 1 - (np.sum(face_scores[i,:] >= neg_face_corrs[i]) / nperms)
+        # p_neg_face = np.zeros(centers.shape[0])
+        # for i in range(centers.shape[0]):
+        #     p_neg_face[i] = 1 - (np.sum(face_scores[i,:] >= neg_face_corrs[i]) / nperms)
 
-        p_pos_scene = np.zeros(centers.shape[0])
-        for i in range(centers.shape[0]):
-            p_pos_scene[i] = 1 - (np.sum(scene_scores[i,:] >= pos_scene_corrs[i]) / nperms)
+        # p_pos_scene = np.zeros(centers.shape[0])
+        # for i in range(centers.shape[0]):
+        #     p_pos_scene[i] = 1 - (np.sum(scene_scores[i,:] >= pos_scene_corrs[i]) / nperms)
 
-        p_neg_scene = np.zeros(centers.shape[0])
-        for i in range(centers.shape[0]):
-            p_neg_scene[i] = 1 - (np.sum(scene_scores[i,:] >= neg_scene_corrs[i]) / nperms)
+        # p_neg_scene = np.zeros(centers.shape[0])
+        # for i in range(centers.shape[0]):
+        #     p_neg_scene[i] = 1 - (np.sum(scene_scores[i,:] >= neg_scene_corrs[i]) / nperms)
 
     
      #6: Plotting SL Maps
@@ -275,73 +275,92 @@ for subject in sub:
      
         x, y, z = mask.shape
 
-        #POS 
-        pos_pval_brain = np.zeros([x*y*z])
-        pos_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_face
-        pos_pval_brain = pos_pval_brain.reshape([x,y,z])
-        pos_face_p_brain_img = nib.Nifti1Image(pos_pval_brain, affine=bold_img.affine, header=bold_img.header)
+        # #POS 
+        # pos_pval_brain = np.zeros([x*y*z])
+        # pos_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_face
+        # pos_pval_brain = pos_pval_brain.reshape([x,y,z])
+        # pos_face_p_brain_img = nib.Nifti1Image(pos_pval_brain, affine=bold_img.affine, header=bold_img.header)
 
-        #NEG
-        neg_pval_brain = np.zeros([x*y*z])
-        neg_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_face
-        neg_pval_brain = neg_pval_brain.reshape([x,y,z])
-        neg_face_p_brain_img = nib.Nifti1Image(neg_pval_brain, affine=bold_img.affine, header=bold_img.header)
+        # #NEG
+        # neg_pval_brain = np.zeros([x*y*z])
+        # neg_pval_brain[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_face
+        # neg_pval_brain = neg_pval_brain.reshape([x,y,z])
+        # neg_face_p_brain_img = nib.Nifti1Image(neg_pval_brain, affine=bold_img.affine, header=bold_img.header)
 
-        #POS
-        pos_pval_brain_s = np.zeros([x*y*z])
-        pos_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_scene
-        pos_pval_brain_s = pos_pval_brain_s.reshape([x,y,z])
-        pos_scene_p_brain_img = nib.Nifti1Image(pos_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
+        # #POS
+        # pos_pval_brain_s = np.zeros([x*y*z])
+        # pos_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_pos_scene
+        # pos_pval_brain_s = pos_pval_brain_s.reshape([x,y,z])
+        # pos_scene_p_brain_img = nib.Nifti1Image(pos_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
 
-        #NEG
-        neg_pval_brain_s = np.zeros([x*y*z])
-        neg_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_scene
-        neg_pval_brain_s = neg_pval_brain_s.reshape([x,y,z])
-        neg_scene_p_brain_img = nib.Nifti1Image(neg_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
+        # #NEG
+        # neg_pval_brain_s = np.zeros([x*y*z])
+        # neg_pval_brain_s[list(SL_RDM.rdm_descriptors['voxel_index'])] = p_neg_scene
+        # neg_pval_brain_s = neg_pval_brain_s.reshape([x,y,z])
+        # neg_scene_p_brain_img = nib.Nifti1Image(neg_pval_brain_s, affine=bold_img.affine, header=bold_img.header)
 
         output_dir = "/work/cb3/ahumphries/RSA-SL/maps"
 
         #nifti file outputs for each sub and run 
         #FACE
-        nib.save(pos_face_p_brain_img, op.join(output_dir,f'POSf_map_p-run_{run_num}-{subject}.nii.gz'))
-        nib.save(neg_face_p_brain_img, op.join(output_dir,f'NEGf_map_p-run_{run_num}-{subject}.nii.gz'))
-        #SCENE
-        nib.save(pos_scene_p_brain_img, op.join(output_dir,f'POSs_map_p-run_{run_num}-{subject}.nii.gz'))
-        nib.save(neg_scene_p_brain_img, op.join(output_dir,f'NEGs_map_p-run_{run_num}-{subject}.nii.gz'))
+        # nib.save(pos_face_p_brain_img, op.join(output_dir,f'POSf_map_p-run_{run_num}-{subject}.nii.gz'))
+        # nib.save(neg_face_p_brain_img, op.join(output_dir,f'NEGf_map_p-run_{run_num}-{subject}.nii.gz'))
+        # #SCENE
+        # nib.save(pos_scene_p_brain_img, op.join(output_dir,f'POSs_map_p-run_{run_num}-{subject}.nii.gz'))
+        # nib.save(neg_scene_p_brain_img, op.join(output_dir,f'NEGs_map_p-run_{run_num}-{subject}.nii.gz'))
 
 
      #5a: Create RDM brain maps by reshaping the 3d arrays
-    #     #POS
-    #     pos_corrs_f = np.zeros([x*y*z])
-    #     pos_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = pos_face_corrs
-    #     pos_corrs_f= pos_corrs_f.reshape([x,y,z])
+        #POS
+        pos_corrs_f = np.zeros([x*y*z])
+        pos_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = pos_face_corrs
+        pos_corrs_f= pos_corrs_f.reshape([x,y,z])
 
-    #     pos_corrs_s = np.zeros([x*y*z])
-    #     pos_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = pos_scene_corrs
-    #     pos_corrs_s = pos_corrs_s.reshape([x,y,z])
-    #     #NEG
-    #     neg_corrs_f = np.zeros([x*y*z])
-    #     neg_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = neg_face_corrs
-    #     neg_corrs_f = neg_corrs_f.reshape([x,y,z])
+        pos_corrs_f_z = fisher_z_transform(pos_corrs_f)
 
-    #     neg_corrs_s = np.zeros([x*y*z])
-    #     neg_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = neg_scene_corrs
-    #     neg_corrs_s = neg_corrs_s.reshape([x,y,z])
+        pos_corrs_s = np.zeros([x*y*z])
+        pos_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = pos_scene_corrs
+        pos_corrs_s = pos_corrs_s.reshape([x,y,z])
 
+        pos_corrs_s_z = fisher_z_transform(pos_corrs_s)
+        #NEG
+        neg_corrs_f = np.zeros([x*y*z])
+        neg_corrs_f[list(SL_RDM.rdm_descriptors['voxel_index'])] = neg_face_corrs
+        neg_corrs_f = neg_corrs_f.reshape([x,y,z])
 
-    #     # Create a Nifti image from the correlation array using the bold affine
-    #     pos_face_corrs_brain_img = nib.Nifti1Image(pos_corrs_f, affine=bold_img.affine, header=bold_img.header)
-    #     neg_face_corrs_brain_img = nib.Nifti1Image(neg_corrs_f, affine=bold_img.affine, header=bold_img.header)
+        neg_corrs_f_z = fisher_z_transform(neg_corrs_f)
 
-    #     pos_scene_corrs_brain_img = nib.Nifti1Image(pos_corrs_s, affine=bold_img.affine, header=bold_img.header)
-    #     neg_scene_corrs_brain_img = nib.Nifti1Image(neg_corrs_s, affine=bold_img.affine, header=bold_img.header)
+        neg_corrs_s = np.zeros([x*y*z])
+        neg_corrs_s[list(SL_RDM1.rdm_descriptors['voxel_index'])] = neg_scene_corrs
+        neg_corrs_s = neg_corrs_s.reshape([x,y,z])
+
+        neg_corrs_s_z = fisher_z_transform(neg_corrs_s)
+
+        # Create a Nifti image from the correlation array using the bold affine
+        pos_face_corrs_brain_img = nib.Nifti1Image(pos_corrs_f, affine=bold_img.affine, header=bold_img.header)
+        neg_face_corrs_brain_img = nib.Nifti1Image(neg_corrs_f, affine=bold_img.affine, header=bold_img.header)
+
+        pos_face_corrs_brain_img_z = nib.Nifti1Image(pos_corrs_f_z, affine=bold_img.affine, header=bold_img.header)
+        neg_face_corrs_brain_img_z = nib.Nifti1Image(neg_corrs_f_z, affine=bold_img.affine, header=bold_img.header)
+
+        pos_scene_corrs_brain_img = nib.Nifti1Image(pos_corrs_s, affine=bold_img.affine, header=bold_img.header)
+        neg_scene_corrs_brain_img = nib.Nifti1Image(neg_corrs_s, affine=bold_img.affine, header=bold_img.header)
+
+        pos_scene_corrs_brain_img_z = nib.Nifti1Image(pos_corrs_s_z, affine=bold_img.affine, header=bold_img.header)
+        neg_scene_corrs_brain_img_z = nib.Nifti1Image(neg_corrs_s_z, affine=bold_img.affine, header=bold_img.header)
 
     #     # Save the NIfTI images to a file.
-    #     #nib.save(pos_face_corrs_brain_img, 'POSf_map_{run_num}-{sub}.nii.gz')
-        #nib.save(neg_face_corrs_brain_img, 'NEGf_map_{run_num}-{sub}nii.gz')
+        nib.save(pos_face_corrs_brain_img,  op.join(output_dir,f'POSf_corr_map_{run_num}-{subject}.nii.gz'))
+        nib.save(neg_face_corrs_brain_img,  op.join(output_dir,f'NEGf_corr_map_{run_num}-{subject}.nii.gz'))
 
-        #nib.save(pos_scene_corrs_brain_img, 'POSs_map_{run_num}-{sub}.nii.gz')
-        #nib.save(neg_scene_corrs_brain_img, 'NEGs_map_{run_num}-{sub}nii.gz')
+        nib.save(pos_face_corrs_brain_img_z,  op.join(output_dir,f'POSf_corr_map-z-scored_{run_num}-{subject}.nii.gz'))
+        nib.save(neg_face_corrs_brain_img_z,  op.join(output_dir,f'NEGf_corr_map-z-scored_{run_num}-{subject}.nii.gz'))
+
+        nib.save(pos_scene_corrs_brain_img,  op.join(output_dir,f'POSs_corr_map_{run_num}-{subject}.nii.gz'))
+        nib.save(neg_scene_corrs_brain_img,  op.join(output_dir,f'NEGs_corr_map_{run_num}-{subject}.nii.gz'))
+
+        nib.save(pos_scene_corrs_brain_img_z,  op.join(output_dir,f'POSs_corr_map-z-scored_{run_num}-{subject}.nii.gz'))
+        nib.save(neg_scene_corrs_brain_img_z,  op.join(output_dir,f'NEGs_corr_map-z-scored_{run_num}-{subject}.nii.gz'))
 
         print(f"Finished processing run {run_num}\n")
 
